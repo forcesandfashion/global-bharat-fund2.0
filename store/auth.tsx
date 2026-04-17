@@ -10,6 +10,8 @@ interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
+  isAdmin?: boolean;
+  isSuperAdmin?: boolean;
   userType: string;
   roles: string[];
   onboardingStatus: string;
