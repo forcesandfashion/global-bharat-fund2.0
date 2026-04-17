@@ -5,7 +5,12 @@ import { Plus, Edit, Trash2, Eye, EyeOff, BookOpen, Link as LinkIcon, X, Calenda
 import api from '@/lib/api';
 import FileUpload from '@/components/ui/FileUpload';
 
-interface Week { weekNumber: number; topic: string; description: string; }
+interface Week {
+  weekNumber: number;
+  topic: string;
+  description: string;
+}
+
 interface Cohort {
   id: string;
   title: string;
@@ -18,26 +23,51 @@ interface Cohort {
   createdAt?: string;
 }
 
-const EMPTY_COHORT = { title: '', description: '', imageUrl: '', googleMeetLink: '', startDate: '', weeks: [] as Week[], status: 'DRAFT' as const };
+type CohortStatus = Cohort['status'];
+
+interface CohortForm {
+  title: string;
+  description: string;
+  imageUrl: string;
+  googleMeetLink: string;
+  startDate: string;
+  weeks: Week[];
+  status: CohortStatus;
+}
+
+const EMPTY_COHORT: CohortForm = {
+  title: '',
+  description: '',
+  imageUrl: '',
+  googleMeetLink: '',
+  startDate: '',
+  weeks: [],
+  status: 'DRAFT',
+};
 
 export default function AdminCohortsPage() {
-  const [cohorts, setCohorts] = useState<Cohort[]>([]); 
+  const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Cohort | null>(null);
-  const [form, setForm] = useState<typeof EMPTY_COHORT>(EMPTY_COHORT);
+  const [form, setForm] = useState<CohortForm>(EMPTY_COHORT);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'weeks'>('details');
 
-  useEffect(() => { loadCohorts(); }, []);
+  useEffect(() => {
+    loadCohorts();
+  }, []);
 
   const loadCohorts = async () => {
     setLoading(true);
     try {
       const res = await api.get('/api/cohorts');
       setCohorts(res.data || []);
-    } catch { toast.error('Failed to load cohorts'); }
-    finally { setLoading(false); }
+    } catch {
+      toast.error('Failed to load cohorts');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openCreate = () => {
@@ -49,13 +79,25 @@ export default function AdminCohortsPage() {
 
   const openEdit = (c: Cohort) => {
     setEditing(c);
-    setForm({ title: c.title, description: c.description, imageUrl: c.imageUrl || '', googleMeetLink: c.googleMeetLink || '', startDate: c.startDate || '', weeks: c.weeks || [], status: c.status });
+    setForm({
+      title: c.title,
+      description: c.description,
+      imageUrl: c.imageUrl || '',
+      googleMeetLink: c.googleMeetLink || '',
+      startDate: c.startDate || '',
+      weeks: c.weeks || [],
+      status: c.status,
+    });
     setActiveTab('details');
     setShowModal(true);
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.description) { toast.error('Title and description required'); return; }
+    if (!form.title || !form.description) {
+      toast.error('Title and description required');
+      return;
+    }
+
     setSaving(true);
     try {
       if (editing) {
@@ -67,17 +109,22 @@ export default function AdminCohortsPage() {
       }
       setShowModal(false);
       loadCohorts();
-    } catch { toast.error('Save failed'); }
-    finally { setSaving(false); }
+    } catch {
+      toast.error('Save failed');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleToggleStatus = async (c: Cohort) => {
     try {
-      const newStatus = c.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      const newStatus: CohortStatus = c.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
       await api.put(`/api/cohorts/${c.id}`, { ...c, status: newStatus });
       toast.success(`Cohort ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'}`);
       loadCohorts();
-    } catch { toast.error('Status update failed'); }
+    } catch {
+      toast.error('Status update failed');
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -86,22 +133,30 @@ export default function AdminCohortsPage() {
       await api.delete(`/api/cohorts/${id}`);
       toast.success('Cohort deleted');
       loadCohorts();
-    } catch { toast.error('Delete failed'); }
+    } catch {
+      toast.error('Delete failed');
+    }
   };
 
   const addWeek = () => {
     const nextNum = (form.weeks?.length || 0) + 1;
-    setForm(f => ({ ...f, weeks: [...(f.weeks || []), { weekNumber: nextNum, topic: '', description: '' }] }));
+    setForm((f) => ({
+      ...f,
+      weeks: [...f.weeks, { weekNumber: nextNum, topic: '', description: '' }],
+    }));
   };
 
   const updateWeek = (i: number, field: keyof Week, value: string | number) => {
-    const weeks = [...(form.weeks || [])];
-    weeks[i] = { ...weeks[i], [field]: value };
-    setForm(f => ({ ...f, weeks }));
+    const weeks = [...form.weeks];
+    weeks[i] = { ...weeks[i], [field]: value } as Week;
+    setForm((f) => ({ ...f, weeks }));
   };
 
   const removeWeek = (i: number) => {
-    setForm(f => ({ ...f, weeks: f.weeks?.filter((_, idx) => idx !== i) }));
+    setForm((f) => ({
+      ...f,
+      weeks: f.weeks.filter((_, idx) => idx !== i),
+    }));
   };
 
   return (
