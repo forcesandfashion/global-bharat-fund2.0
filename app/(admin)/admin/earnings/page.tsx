@@ -24,6 +24,13 @@ const COLORS = ['#2563EB', '#F97316', '#10B981', '#8B5CF6', '#F59E0B'];
 const fmtCurrency = (v: number) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const fmtDate = (ms: number) => ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
+const formatTooltipValue = (value: unknown, name: unknown) => {
+  if (typeof value === 'number') {
+    return [fmtCurrency(value), name];
+  }
+  return [value ?? '', name];
+};
+
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
@@ -185,11 +192,11 @@ export default function AdminEarningsPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: ValueType, name: NameType) => {
+                    formatter={(value: any, name: any): [React.ReactNode, string] => {
                       if (typeof value === 'number') {
-                        return [fmtCurrency(value), name];
+                        return [fmtCurrency(value), name as string];
                       }
-                      return [value ?? '', name];
+                      return [value ?? '', name as string];
                     }}
                   />
                 </PieChart>
