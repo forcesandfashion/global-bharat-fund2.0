@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { investorApi } from '@/lib/api';
