@@ -10,6 +10,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer
 } from 'recharts';
+import { ValueType, NameType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface MonthData { label: string; revenue: number; transactions: number; }
 interface PlanData { name: string; count: number; revenue: number; }
@@ -183,7 +184,14 @@ export default function AdminEarningsPage() {
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(val: number) => fmtCurrency(val)} />
+                  <Tooltip
+                    formatter={(value: ValueType, name: NameType) => {
+                      if (typeof value === 'number') {
+                        return [fmtCurrency(value), name];
+                      }
+                      return [value ?? '', name];
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-2 mt-2">
