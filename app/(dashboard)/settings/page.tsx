@@ -237,7 +237,7 @@ export default function SettingsPage() {
               <p className="text-sm font-semibold text-blue-800">Verify Your Email</p>
             </div>
             <p className="text-xs text-blue-600 mb-3">
-              We'll send a 6-digit code to <strong>{user?.email}</strong>
+              We&apos;ll send a 6-digit code to <strong>{user?.email}</strong>
             </p>
             {!emailOtpSent ? (
               <button onClick={sendEmailOtp} disabled={sendingEOtp}
@@ -335,7 +335,7 @@ export default function SettingsPage() {
               <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
                 className={inp} placeholder="Repeat password" />
               {confirmPw && newPw !== confirmPw &&
-                <p className="text-red-500 text-xs mt-1">Passwords don't match</p>}
+                <p className="text-red-500 text-xs mt-1">Passwords don&apos;t match</p>}
             </div>
             <div className="space-y-1.5">
               {[

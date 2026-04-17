@@ -137,16 +137,16 @@ export default function ConnectionsPage() {
             <p className="text-blue-200 text-sm">Build meaningful connections in the Nebula ecosystem</p>
           </div>
           <div className="hidden sm:flex items-center gap-6 text-center">
-            {[
-              { v: acceptedConns.length, l: 'Connected' },
-              { v: sent => sentIds.size, l: 'Sent' },
-              { v: received.length, l: 'Pending' },
-            ].map(({ v, l }) => (
-              <div key={l}>
-                <div className="font-display font-bold text-2xl">{typeof v === 'function' ? v(0) : v}</div>
-                <div className="text-xs text-blue-300">{l}</div>
-              </div>
-            ))}
+           {[
+            { v: acceptedConns.length, l: 'Connected' },
+            { v: sentIds.size, l: 'Sent' },
+            { v: received.length, l: 'Pending' },
+          ].map(({ v, l }) => (
+            <div key={l}>
+              <div className="font-display font-bold text-2xl">{v}</div>
+              <div className="text-xs text-blue-300">{l}</div>
+            </div>
+          ))}
           </div>
         </div>
       </div>

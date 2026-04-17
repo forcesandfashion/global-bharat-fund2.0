@@ -199,7 +199,7 @@ export default function NotificationsPage() {
               <BellOff size={40} className="text-gray-200 mx-auto mb-3" />
               <p className="text-gray-500 font-medium">No notifications yet</p>
               <p className="text-gray-400 text-sm mt-1">
-                You'll be notified about connections, cohorts, and messages here
+                You&apos;ll be notified about connections, cohorts, and messages here
               </p>
             </>
           )}
