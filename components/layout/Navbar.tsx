@@ -4,14 +4,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Rocket } from 'lucide-react';
 import { useAuth } from '@/store/auth';
+import Image from 'next/image';
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
   { href: '/#what-we-offer', label: 'Features' },
   { href: '/pricing', label: 'Pricing' },
-  { href: '/about', label: 'About' },
-  { href: '/#contact', label: 'Contact' },
-  { href: '/blog', label: 'Blog' },
+  
+//   { href: '/#contact', label: 'Contact' },
+//   { href: '/blog', label: 'Blog' },
 ];
 
 export default function Navbar() {
@@ -32,10 +34,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Rocket size={16} className="text-white" />
-            </div>
-            <span className="font-display font-bold text-lg text-gray-900">Nebula</span>
+            {/* <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center"> */}
+              <Image src="/nebulalogo.png" width={75} height={75} className="text-white" alt="Nebula Logo" />
+            {/* </div> */}
+            {/* <span className="font-display font-bold text-lg text-gray-900">Nebula</span> */}
           </Link>
 
           {/* Desktop Nav */}

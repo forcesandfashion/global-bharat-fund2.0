@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Rocket,  Send } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -8,10 +9,12 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              {/* <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Rocket size={16} className="text-white" />
-              </div>
-              <span className="font-display font-bold text-lg">Nebula</span>
+              </div> */}
+                <Image src="/nebulalogo.png" width={75} height={75} className="text-white" alt="Nebula Logo" />
+              
+              {/* <span className="font-display font-bold text-lg">Nebula</span> */}
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-4">
               The premier accelerator platform for the next generation of world-changing startups.
@@ -44,16 +47,16 @@ export default function Footer() {
               links: [
                 { label: 'About', href: '/about' },
                 { label: 'Pricing', href: '/pricing' },
-                { label: 'Blog', href: '/blog' },
-                { label: 'Contact', href: '/#contact' },
+                // { label: 'Blog', href: '/blog' },
+                // { label: 'Contact', href: '/#contact' },
               ],
             },
             {
               title: 'Legal',
               links: [
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms of Service', href: '/terms' },
-                { label: 'Cookie Policy', href: '/cookies' },
+                { label: 'Privacy Policy', href: '/privacy-policy' },
+                { label: 'Terms of Service', href: '/terms-and-condition' },
+                // { label: 'Cookie Policy', href: '/cookies' },
               ],
             },
           ].map((section) => (
@@ -78,7 +81,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">© 2025 Nebula Accelerator. All rights reserved.</p>
+          <p className="text-gray-500 text-sm">© 2026 Nebula Accelerator. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="https://github.com" className="text-gray-500 hover:text-white text-sm transition-colors">Github</a>
             <a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">Telegram</a>

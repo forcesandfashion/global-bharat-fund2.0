@@ -74,8 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = '/login';
   };
 
-  const isAdmin = user?.roles?.includes('ADMIN') || user?.roles?.includes('SUPER_ADMIN') || false;
-  const isSuperAdmin = user?.roles?.includes('SUPER_ADMIN') || false;
+  const isAdmin = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_SUPER_ADMIN') || false;
+  const isSuperAdmin = user?.roles?.includes('ROLE_SUPER_ADMIN') || false;
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, isAdmin, isSuperAdmin, loading }}>

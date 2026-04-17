@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 
@@ -48,3 +48,36 @@ export function generateFilePath(userId: string, type: string, filename: string)
 }
 
 export default app;
+
+// ─── Firebase Phone Auth ────────────────────────────────────────────────────
+// Used for sending real SMS OTPs via Firebase Phone Authentication.
+// The backend verifies the Firebase ID token via POST /api/auth/verify-phone-token
+
+let recaptchaVerifier: RecaptchaVerifier | null = null;
+
+export function setupRecaptcha(containerId: string): RecaptchaVerifier {
+  if (recaptchaVerifier) {
+    recaptchaVerifier.clear();
+    recaptchaVerifier = null;
+  }
+  recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+    size: 'invisible',
+    callback: () => {},
+  });
+  return recaptchaVerifier;
+}
+
+export async function sendPhoneSmsOtp(phoneNumber: string): Promise<any> {
+  if (!recaptchaVerifier) throw new Error('RecaptchaVerifier not initialised. Call setupRecaptcha first.');
+  const confirmation = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+  return confirmation;
+}
+
+export async function verifyPhoneSmsOtp(
+  confirmationResult: any,
+  otp: string
+): Promise<string> {
+  const credential = await confirmationResult.confirm(otp);
+  const idToken = await credential.user.getIdToken();
+  return idToken;   // send this to POST /api/auth/verify-firebase-phone for backend verification
+}

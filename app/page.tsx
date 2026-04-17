@@ -6,15 +6,37 @@ import Footer from '@/components/layout/Footer';
 import { AuthProvider } from '@/store/auth';
 import { ArrowRight, Star, Zap, Users, TrendingUp, Award } from 'lucide-react';
 
+// Deterministic star styles (client‑only to avoid hydration mismatch)
+const generateStarStyle = (i: number) => {
+  const seed = i * 0.123456;
+  const rand = (min: number, max: number) => {
+    const x = Math.sin(seed + i) * 10000;
+    return min + (x - Math.floor(x)) * (max - min);
+  };
+  return {
+    width: `${rand(2, 6)}px`,
+    height: `${rand(2, 6)}px`,
+    left: `${rand(0, 100)}%`,
+    top: `${rand(0, 100)}%`,
+    animationDelay: `${rand(0, 2)}s`,
+    animationDuration: `${rand(1, 2.5)}s`,
+  };
+};
+
 function HomePageInner() {
   const [rocketLaunched, setRocketLaunched] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [stars, setStars] = useState<ReturnType<typeof generateStarStyle>[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => setRocketLaunched(true), 300);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-    return () => { clearTimeout(timer); window.removeEventListener('scroll', handleScroll); };
+    setStars(Array.from({ length: 20 }, (_, i) => generateStarStyle(i)));
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
@@ -25,150 +47,148 @@ function HomePageInner() {
       <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
         {/* Background stars */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
+          {stars.map((style, i) => (
             <div
               key={i}
               className="star absolute rounded-full bg-blue-400"
-              style={{
-                width: `${Math.random() * 4 + 2}px`,
-                height: `${Math.random() * 4 + 2}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${Math.random() * 1.5 + 1}s`,
-                opacity: 0.2,
-              }}
+              style={{ ...style, opacity: 0.2 }}
             />
           ))}
         </div>
 
-        <div className="container mx-auto px-6 lg:px-16 py-24">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left content */}
-            <div className={`transition-all duration-700 ${rocketLaunched ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 mb-6">
-                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                <span className="text-sm text-blue-700 font-medium">Applications Open 2025</span>
-              </div>
-
-              <h1 className="font-display text-5xl lg:text-7xl font-bold text-gray-900 leading-tight mb-4">
-                Kickstart your
-                <br />
-                <span className="text-primary-600">company</span>
-              </h1>
-
-              <p className="text-blue-600 italic text-xl font-medium mb-6">
-                ~ And launch within minutes
-              </p>
-
-              <p className="text-gray-500 text-lg mb-8 max-w-md leading-relaxed">
-                Join the ecosystem of founders, investors, mentors and influencers 
-                building the next generation of world-changing startups.
-              </p>
-
-              <div className="flex flex-wrap gap-4 mb-12">
-                <Link
-                  href="/register"
-                  className="btn-cta px-8 py-3.5 rounded-xl text-base flex items-center gap-2"
-                >
-                  Get started <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/about"
-                  className="px-8 py-3.5 rounded-xl text-base border-2 border-gray-200 text-gray-700 font-semibold hover:border-blue-300 hover:text-blue-600 transition-all"
-                >
-                  Learn more
-                </Link>
-              </div>
-
-              {/* Stats */}
-              <div className="flex gap-8">
-                {[
-                  { value: '500+', label: 'Founders' },
-                  { value: '$2M+', label: 'Raised' },
-                  { value: '50+', label: 'Mentors' },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="font-display text-2xl font-bold text-gray-900">{stat.value}</div>
-                    <div className="text-sm text-gray-500">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+        <div className="container mx-auto px-6 lg:px-16 py-24 relative">
+          {/* Left content */}
+          <div
+            className={`relative z-10 max-w-xl transition-all duration-700 ${
+              rocketLaunched ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 mb-6">
+              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+              <span className="text-sm text-blue-700 font-medium">Applications Open 2026</span>
             </div>
 
-            {/* Right - Rocket + Info cards */}
-            <div className="relative flex justify-center items-center">
-              {/* Info cards (right side) */}
-              <div className="absolute right-0 top-0 flex flex-col gap-6 z-10">
-                {[
-                  {
-                    title: 'Who we are',
-                    desc: 'A platform to manage contracts, set up your cap table and keep your company compliant.',
-                  },
-                  {
-                    title: 'What we do',
-                    desc: 'Nebula exists to help bring creative projects to life. A home for founders, investors, mentors, and more.',
-                  },
-                  {
-                    title: 'What you get',
-                    desc: "We'll create the legal documents, file the paperwork, and get your business running within days.",
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.title}
-                    className={`bg-white border border-gray-100 rounded-xl p-4 w-56 shadow-sm transition-all duration-700 ${rocketLaunched ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
-                    style={{ transitionDelay: '0.4s' }}
-                  >
-                    <div className="flex items-start justify-between mb-1">
-                      <h3 className="font-semibold text-sm text-gray-900">{item.title}</h3>
-                      <div className="grid grid-cols-2 gap-0.5 opacity-30">
-                        {[...Array(4)].map((_, i) => (
-                          <div key={i} className="w-1 h-1 bg-gray-400 rounded-full" />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
+            <h1 className="font-display text-5xl lg:text-7xl font-bold text-gray-900 leading-tight mb-4">
+              Kickstart your
+              <br />
+              <span className="text-primary-600">company</span>
+            </h1>
 
-              {/* Rocket SVG */}
-              <div
-                className={`relative transition-all duration-1000 ${rocketLaunched ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}
-                style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+            {/* <p className="text-blue-600 italic text-xl font-medium mb-6">
+              ~ And launch within minutes
+            </p> */}
+
+            <p className="text-gray-500 text-lg mb-8 max-w-md leading-relaxed">
+              Nebula Accelerator is a strategic innovation ecosystem designed to support startups from concept to commercialization. We provide a comprehensive framework that integrates mentorship, incubation, acceleration, and investment access to help founders build scalable, high-impact ventures.
+
+Our platform brings together entrepreneurs, industry leaders, government partners, investors, and academic institutions to create a collaborative environment where ideas can grow, technology can advance, and businesses can thrive globally.
+            </p>
+
+            <div className="flex flex-wrap gap-4 mb-12">
+              <Link
+                href="/register"
+                className="btn-cta px-8 py-3.5 rounded-xl text-base flex items-center gap-2"
               >
-                <RocketSVG />
-              </div>
+                Get started <ArrowRight size={18} />
+              </Link>
+              <Link
+                href="/about"
+                className="px-8 py-3.5 rounded-xl text-base border-2 border-gray-200 text-gray-700 font-semibold hover:border-blue-300 hover:text-blue-600 transition-all"
+              >
+                Learn more
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="flex gap-8">
+              {[
+                { value: '500+', label: 'Founders' },
+                { value: '$2M+', label: 'Raised' },
+                { value: '50+', label: 'Mentors' },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <div className="font-display text-2xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-sm text-gray-500">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Scroll nav */}
-          <div className="absolute bottom-8 left-6 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <div className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center">
-                <span className="text-xs">↑</span>
-              </div>
-              Kickstart your company
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
-              <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
-                <span className="text-xs text-blue-500">↓</span>
-              </div>
-              What we offer
+          {/* Rocket – absolutely centered horizontally */}
+          <div
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 pointer-events-none ${
+              rocketLaunched ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+            }`}
+            style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+          >
+            <RocketSVG />
+          </div>
+
+          {/* Info cards – absolutely positioned on the right edge */}
+          <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 z-10 mr-32">
+            <div className="flex flex-col gap-4">
+              {[
+                {
+                  title: 'Who we are',
+                  desc: 'Nebula is a next–generation accelerator designed to empower founders, creators, and innovators. We combine strategic structure, global networks, and deep operational experience to help you grow from vision to a scalable, world-class venture.',
+                },
+                {
+                  title: 'What we do',
+                  desc: 'Nebula is a growth ecosystem designed to support entrepreneurs at every step of their startup journey. From idea validation to funding and scaling, we provide the knowledge, mentorship, resources, and connections needed to turn ideas into successful businesses.',
+                },
+                {
+                  title: 'What We Believe',
+                  desc: "At Nebula, we believe transformational businesses are built when the right idea is matched with the right guidance, network, and resources. Our focus is not only on accelerating technology-driven solutions but on shaping sustainable, responsible, and globally relevant innovation.",
+                },
+              ].map((item, idx) => (
+                <div
+                  key={item.title}
+                  className={`bg-white border border-gray-100 rounded-xl p-4 w-56 shadow-sm transition-all duration-700 ${
+                    rocketLaunched ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+                  }`}
+                  style={{ transitionDelay: `${0.4 + idx * 0.1}s` }}
+                >
+                  <div className="flex items-start justify-between mb-1">
+                    <h3 className="font-semibold text-sm text-gray-900">{item.title}</h3>
+                    <div className="grid grid-cols-2 gap-0.5 opacity-30">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="w-1 h-1 bg-gray-400 rounded-full" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+
+        {/* Scroll nav */}
+        {/* <div className="absolute bottom-8 left-6 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center">
+              <span className="text-xs">↑</span>
+            </div>
+            Kickstart your company
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
+            <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
+              <span className="text-xs text-blue-500">↓</span>
+            </div>
+            What we offer
+          </div>
+        </div> */}
       </section>
 
       {/* WHAT WE OFFER */}
-      <section id="what-we-offer" className="py-24 bg-gray-50">
+      <section id="what-we-offer" className="py-24 bg-gray-50 mt-[-4rem]">
         <div className="container mx-auto px-6 lg:px-16">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               Built for every <span className="text-primary-600">stakeholder</span>
             </h2>
             <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-              Whether you're building, investing, guiding, or amplifying — Nebula has a place for you.
+              Whether you&apos;re building, investing, guiding, or amplifying — Nebula has a place for you.
             </p>
           </div>
 
@@ -227,7 +247,7 @@ function HomePageInner() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white mt-[-8rem]">
         <div className="container mx-auto px-6 lg:px-16">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
@@ -237,9 +257,21 @@ function HomePageInner() {
           <div className="grid md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-10 left-1/3 right-1/3 h-0.5 bg-blue-100" />
             {[
-              { step: '01', title: 'Create Account', desc: 'Sign up with your role and complete your profile to join the Nebula ecosystem.' },
-              { step: '02', title: 'Choose Your Plan', desc: 'Select a plan that fits your goals. Skip payment for now and upgrade anytime.' },
-              { step: '03', title: 'Join & Launch', desc: 'Access cohorts, connect with mentors, and start building your success story.' },
+              {
+                step: '01',
+                title: 'Create Account',
+                desc: 'Sign up with your role and complete your profile to join the Nebula ecosystem.',
+              },
+              {
+                step: '02',
+                title: 'Choose Your Plan',
+                desc: 'Select a plan that fits your goals. Skip payment for now and upgrade anytime.',
+              },
+              {
+                step: '03',
+                title: 'Join & Launch',
+                desc: 'Access cohorts, connect with mentors, and start building your success story.',
+              },
             ].map((item) => (
               <div key={item.step} className="text-center relative">
                 <div className="w-20 h-20 rounded-2xl bg-blue-600 text-white font-display font-bold text-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
@@ -276,7 +308,7 @@ function HomePageInner() {
             Ready for launch?
           </h2>
           <p className="text-blue-100 text-lg mb-8 max-w-md mx-auto">
-            Join thousands of founders who've already started their journey with Nebula.
+            Join thousands of founders who&apos;ve already started their journey with Nebula.
           </p>
           <Link
             href="/register"
@@ -303,7 +335,7 @@ export default function HomePage() {
 
 function RocketSVG() {
   return (
-    <div className="relative w-80 h-96 animate-float">
+    <div className="relative w-72 sm:w-80 h-96 animate-float mx-auto ml-32">
       <svg viewBox="0 0 300 420" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
         {/* Rocket body */}
         <ellipse cx="150" cy="160" rx="55" ry="120" fill="#F1F5F9" />
@@ -324,15 +356,12 @@ function RocketSVG() {
 
         {/* Flame - animated */}
         <g className="animate-flame" style={{ transformOrigin: '150px 280px' }}>
-          {/* Main flame - blue/purple */}
           <ellipse cx="150" cy="310" rx="40" ry="50" fill="#2563EB" opacity="0.9" />
-          {/* Inner flame - lighter blue */}
           <ellipse cx="150" cy="315" rx="25" ry="35" fill="#60A5FA" opacity="0.8" />
-          {/* Core flame - white */}
           <ellipse cx="150" cy="318" rx="12" ry="20" fill="#BFDBFE" opacity="0.9" />
         </g>
 
-        {/* Cloud puffs at bottom */}
+        {/* Cloud puffs */}
         <g opacity="0.6">
           <ellipse cx="100" cy="380" rx="45" ry="28" fill="#2563EB" />
           <ellipse cx="155" cy="390" rx="55" ry="32" fill="#1D4ED8" />
