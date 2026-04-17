@@ -18,10 +18,10 @@ interface Cohort {
   createdAt?: string;
 }
 
-const EMPTY_COHORT = { title: '', description: '', imageUrl: '', googleMeetLink: '', startDate: '', weeks: [], status: 'DRAFT' as const };
+const EMPTY_COHORT = { title: '', description: '', imageUrl: '', googleMeetLink: '', startDate: '', weeks: [] as Week[], status: 'DRAFT' as const };
 
 export default function AdminCohortsPage() {
-  const [cohorts, setCohorts] = useState<Cohort[]>([]);
+  const [cohorts, setCohorts] = useState<Cohort[]>([]); 
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Cohort | null>(null);
