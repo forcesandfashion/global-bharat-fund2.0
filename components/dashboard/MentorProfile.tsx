@@ -22,32 +22,93 @@ export default function MentorProfile() {
   const [files, setFiles] = useState<Record<string, string>>({});
   const { register, reset, getValues } = useForm();
 
+  // useEffect(() => {
+  //   mentorApi.getProfile().then(res => {
+  //     setProfile(res.data || {});
+  //     reset(res.data || {});
+  //     setFiles({
+  //       panCardUrl: res.data?.panCardUrl || '',
+  //       aadharCardUrl: res.data?.aadharCardUrl || '',
+  //       gstCertificateUrl: res.data?.gstCertificateUrl || '',
+  //       profilePictureUrl: res.data?.profilePictureUrl || '',
+  //       signatureUrl: res.data?.signatureUrl || '',
+  //     });
+  //   }).catch(() => {});
+  // }, []);
   useEffect(() => {
-    mentorApi.getProfile().then(res => {
-      setProfile(res.data || {});
-      reset(res.data || {});
-      setFiles({
-        panCardUrl: res.data?.panCardUrl || '',
-        aadharCardUrl: res.data?.aadharCardUrl || '',
-        gstCertificateUrl: res.data?.gstCertificateUrl || '',
-        profilePictureUrl: res.data?.profilePictureUrl || '',
-        signatureUrl: res.data?.signatureUrl || '',
-      });
-    }).catch(() => {});
-  }, []);
+  mentorApi.getProfile().then(res => {
+    setProfile(res.data || {});
+    reset(res.data || {});
+    setFiles({
+      // Removed: panCardUrl, aadharCardUrl
+      gstCertificateUrl: res.data?.gstCertificateUrl || '',
+      profilePictureUrl: res.data?.profilePictureUrl || '',
+      signatureUrl: res.data?.signatureUrl || '',
+    });
+  }).catch(() => {});
+}, []);
+
+
+  // const saveStep = async () => {
+  //   setSaving(true);
+  //   try {
+  //     const data = { ...getValues(), ...files };
+  //     await mentorApi.savePersonalInfo(data);
+  //     toast.success('Saved successfully!');
+  //   } catch {
+  //     toast.error('Save failed.');
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
 
   const saveStep = async () => {
-    setSaving(true);
-    try {
-      const data = { ...getValues(), ...files };
-      await mentorApi.savePersonalInfo(data);
-      toast.success('Saved successfully!');
-    } catch {
-      toast.error('Save failed.');
-    } finally {
-      setSaving(false);
+  setSaving(true);
+  try {
+    // ✅ FIX 1: Set the bitmask bit for the current step
+    const updatedCompletedSteps = (profile?.completedSteps || 0) | (1 << currentStep);
+
+    const data = {
+      ...getValues(),
+      ...files,
+      completedSteps: updatedCompletedSteps,
+      // ✅ FIX 2: Rename nationality → nation to match backend model
+      nation: getValues('nationality'),
+    };
+
+    // Remove the mismatched key
+    delete data.nationality;
+
+    await mentorApi.savePersonalInfo(data);
+
+    // ✅ Update local profile state so progressPercent recalculates
+    setProfile((prev: any) => ({
+      ...prev,
+      completedSteps: updatedCompletedSteps,
+      progressPercent: Math.round(
+        (Integer_bitCount(updatedCompletedSteps) / 6) * 100
+      ),
+    }));
+
+    toast.success('Saved successfully!');
+
+    // Auto-advance to next step after save
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(s => s + 1);
     }
-  };
+  } catch {
+    toast.error('Save failed.');
+  } finally {
+    setSaving(false);
+  }
+};
+
+// Helper matching Java's Integer.bitCount
+const Integer_bitCount = (n: number) => {
+  let count = 0;
+  while (n) { count += n & 1; n >>>= 1; }
+  return count;
+};
 
   const inputCls = "input-field w-full px-4 py-2.5 rounded-xl text-sm";
   const labelCls = "block text-sm font-medium text-gray-700 mb-1.5";
@@ -65,6 +126,7 @@ export default function MentorProfile() {
         </div>
         <div><label className={labelCls}>Nationality</label>
           <select {...register('nation')} className={inputCls}>
+
             <option value="">Select...</option>
             <option value="INDIAN">Indian</option>
             <option value="NRI">NRI</option>
@@ -75,17 +137,30 @@ export default function MentorProfile() {
       </div>
     ),
     1: (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div><label className={labelCls}>PAN Number</label><input {...register('panNumber')} className={inputCls} /></div>
-          <div><label className={labelCls}>Aadhar Number</label><input {...register('aadharNumber')} className={inputCls} /></div>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <FileUpload label="PAN Card" fieldName="panCard" value={files.panCardUrl} onChange={url => setFiles(f => ({ ...f, panCardUrl: url }))} />
-          <FileUpload label="Aadhar Card" fieldName="aadharCard" value={files.aadharCardUrl} onChange={url => setFiles(f => ({ ...f, aadharCardUrl: url }))} />
-        </div>
+  <div className="space-y-4">
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <label className={labelCls}>PAN Number</label>
+        <input
+          {...register('panNumber')}
+          className={inputCls}
+          placeholder="e.g. ABCDE1234F"
+          maxLength={10}
+          style={{ textTransform: 'uppercase' }}
+        />
       </div>
-    ),
+      <div>
+        <label className={labelCls}>Aadhar Number</label>
+        <input
+          {...register('aadharNumber')}
+          className={inputCls}
+          placeholder="e.g. 1234 5678 9012"
+          maxLength={14}
+        />
+      </div>
+    </div>
+  </div>
+),
     2: (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -103,10 +178,10 @@ export default function MentorProfile() {
           <div><label className={labelCls}>Account Number</label><input {...register('bank.accountNumber')} className={inputCls} /></div>
           <div><label className={labelCls}>IFSC Code</label><input {...register('bank.ifscCode')} className={inputCls} /></div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-2 gap-4">
           <div><label className={labelCls}>GST Number</label><input {...register('gstNumber')} className={inputCls} /></div>
           <FileUpload label="GST Certificate" fieldName="gstCertificate" value={files.gstCertificateUrl} onChange={url => setFiles(f => ({ ...f, gstCertificateUrl: url }))} />
-        </div>
+        </div> */}
         <div>
           <label className={labelCls}>Hourly Rate (USD)</label>
           <input {...register('charges.hourlyRate')} type="number" className={inputCls} placeholder="e.g. 150" />

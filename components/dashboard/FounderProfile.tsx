@@ -39,28 +39,29 @@ export default function FounderProfile() {
     }).catch(() => {});
   }, []);
 
-  const saveStep = async () => {
-    setSaving(true);
-    try {
-      const data = { ...getValues(), ...files };
-      const bit = STEPS[currentStep].bit;
-      const stepMap: Record<number, () => Promise<any>> = {
-        0: () => founderApi.savePersonalInfo(data),
-        1: () => founderApi.saveIdentity(data),
-        2: () => founderApi.saveAddress(data),
-        3: () => founderApi.saveBankGst(data),
-        4: () => founderApi.savePitchDeck(data),
-        5: () => founderApi.saveDeclaration(data),
-      };
-      const res = await stepMap[bit]?.();
-      setProfile(res?.data || {});
-      toast.success('Saved successfully!');
-    } catch {
-      toast.error('Save failed. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
+ const saveStep = async () => {
+  setSaving(true);
+  try {
+    const data = { ...getValues(), ...files };
+    const bit = STEPS[currentStep].bit;
+    const stepMap: Record<number, () => Promise<any>> = {
+      0: () => founderApi.savePersonalInfo(data),
+      1: () => founderApi.saveIdentity(data),
+      2: () => founderApi.saveAddress(data),
+      3: () => founderApi.saveBankGst(data),
+      4: () => founderApi.savePitchDeck(data),
+      5: () => founderApi.saveDeclaration(data),
+    };
+    const res = await stepMap[bit]?.();
+    setProfile(res?.data || {});
+    toast.success('Saved successfully!');
+  } catch (error: any) {
+    console.error('Save error:', error.response?.data || error.message);
+    toast.error(error.response?.data?.message || 'Save failed. Please try again.');
+  } finally {
+    setSaving(false);
+  }
+};
 
   const inputCls = "input-field w-full px-4 py-2.5 rounded-xl text-sm";
   const labelCls = "block text-sm font-medium text-gray-700 mb-1.5";

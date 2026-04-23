@@ -60,7 +60,7 @@ export default function InfluencerProfile() {
         <div className="grid grid-cols-2 gap-4">
           <div><label className={labelCls}>Date of Birth</label><input {...register('dateOfBirth')} type="date" className={inputCls} /></div>
           <div><label className={labelCls}>Nationality</label>
-            <select {...register('nation')} className={inputCls}>
+            <select {...register('nationality')} className={inputCls}>
               <option value="">Select...</option>
               <option value="INDIAN">Indian</option>
               <option value="NRI">NRI</option>
