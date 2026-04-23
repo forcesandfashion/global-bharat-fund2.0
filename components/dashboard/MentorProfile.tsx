@@ -77,7 +77,7 @@ export default function MentorProfile() {
     };
 
     // Remove the mismatched key
-    delete data.nationality;
+    delete data.nation;
 
     await mentorApi.savePersonalInfo(data);
 
